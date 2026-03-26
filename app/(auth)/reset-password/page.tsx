@@ -1,22 +1,13 @@
-import { ResetPasswordForm } from '@/components/forms/reset-password-form';
-import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { getUser } from '@/lib/supabase/server';
+import { ResetPasswordForm } from '@/components/forms/reset-password-form';
 
 export default async function ResetPasswordPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUser();
 
   if (!user) {
     redirect('/login');
   }
 
-  return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm md:max-w-4xl">
-        <ResetPasswordForm email={user?.email} />
-      </div>
-    </div>
-  );
+  return <ResetPasswordForm email={user?.email} />;
 }

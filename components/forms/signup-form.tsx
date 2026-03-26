@@ -3,10 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   Field,
   FieldDescription,
@@ -15,18 +13,29 @@ import {
   FieldSeparator,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import Image from 'next/image';
 
-import { toast } from 'sonner';
+import { notify } from '@/lib/notifications';
 import { Spinner } from '@/components/ui/spinner';
-import { translateError } from '@/lib/supabase/errors';
+import { cn } from '@/lib/utils';
 import { OAuthButtons } from '@/components/auth/oauth-buttons';
+import { InfoIcon } from 'lucide-react';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@/components/ui/input-group';
 
 export function SignupForm({
   className,
   ...props
-}: React.ComponentProps<'div'>) {
+}: React.ComponentProps<'form'>) {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -35,134 +44,136 @@ export function SignupForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirm) {
-      toast.error('As senhas não coincidem');
+      notify.error('As senhas não coincidem');
       return;
     }
     setLoading(true);
 
-    const supabase = createClient();
     try {
       const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            full_name: name,
+          },
         },
       });
 
       if (authError) {
-        toast.error(translateError(authError.message));
+        notify.error(authError.message);
       } else if (data.user && data.session) {
-        toast.success('Cadastro realizado com sucesso!');
+        notify.success('Cadastro realizado com sucesso!');
         router.push('/');
         router.refresh();
       } else if (data.user && !data.session) {
-        toast.success(
+        notify.success(
           'Cadastro realizado. Verifique seu e-mail para confirmar a conta.'
         );
         router.push('/login');
       }
-    } catch (err) {
-      toast.error('Ocorreu um erro inesperado. Tente novamente.');
+    } catch {
+      notify.error('Ocorreu um erro inesperado. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form
-            className="flex min-h-[480px] flex-col justify-center p-6 md:p-8"
-            onSubmit={handleSubmit}
-          >
-            <FieldGroup>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Crie sua conta</h1>
-                <p className="text-muted-foreground text-sm text-balance">
-                  Insira seu e-mail abaixo para criar sua conta
-                </p>
-              </div>
-              <Field>
-                <FieldLabel htmlFor="email">E-mail</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@exemplo.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <FieldDescription>
-                  Usaremos isso para entrar em contato. Não compartilharemos seu
-                  e-mail com mais ninguém.
-                </FieldDescription>
-              </Field>
-              <Field>
-                <Field className="grid grid-cols-2 gap-4">
-                  <Field>
-                    <FieldLabel htmlFor="password">Senha</FieldLabel>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="confirm-password">
-                      Confirmar Senha
-                    </FieldLabel>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      required
-                      value={confirm}
-                      onChange={(e) => setConfirm(e.target.value)}
-                    />
-                  </Field>
-                </Field>
-                <FieldDescription>
-                  Deve ter ao menos 8 caracteres.
-                </FieldDescription>
-              </Field>
-              <Field>
-                <Button type="submit" disabled={loading}>
-                  {loading && <Spinner className="mr-2" />}
-                  {loading ? 'Criando…' : 'Criar Conta'}
-                </Button>
-              </Field>
-              <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Ou continue com
-              </FieldSeparator>
-              <Field>
-                <OAuthButtons />
-              </Field>
-              <FieldDescription className="text-center">
-                Já tem uma conta?{' '}
-                <Link href="/login" className="underline hover:opacity-80">
-                  Entrar
-                </Link>
-              </FieldDescription>
-            </FieldGroup>
-          </form>
-          <div className="bg-muted relative hidden md:block">
-            <Image
-              src="/auth.jpg"
-              alt="Imagem de fundo"
-              fill
-              className="object-cover dark:brightness-[0.2] dark:grayscale"
+    <form
+      className={cn('mx-auto flex w-full max-w-xs flex-col gap-6', className)}
+      onSubmit={handleSubmit}
+      {...props}
+    >
+      <FieldGroup className="grid grid-cols-1 gap-x-8 gap-y-6">
+        <div className="col-span-full flex flex-col items-center gap-1 text-center">
+          <h1 className="text-2xl font-bold">Crie sua conta</h1>
+          <p className="text-muted-foreground text-sm text-balance">
+            Preencha o formulário abaixo para criar sua conta
+          </p>
+        </div>
+        <Field className="col-span-full md:col-span-1">
+          <FieldLabel htmlFor="name">Nome Completo</FieldLabel>
+          <Input
+            id="name"
+            type="text"
+            placeholder="João Silva"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Field>
+        <Field className="col-span-full md:col-span-1">
+          <FieldLabel htmlFor="email">E-mail</FieldLabel>
+          <InputGroup>
+            <InputGroupInput
+              id="email"
+              type="email"
+              placeholder="m@exemplo.com"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-          </div>
-        </CardContent>
-      </Card>
-      <FieldDescription className="px-6 text-center">
-        Ao clicar em continuar, você concorda com nossos{' '}
-        <Link href="/terms">Termos de Serviço</Link> e{' '}
-        <Link href="/privacy">Política de Privacidade</Link>.
-      </FieldDescription>
-    </div>
+            <InputGroupAddon align="inline-end">
+              <HoverCard openDelay={10} closeDelay={100}>
+                <HoverCardTrigger asChild>
+                  <InfoIcon />
+                </HoverCardTrigger>
+                <HoverCardContent className="flex w-64 flex-col gap-0.5">
+                  <FieldDescription>
+                    Usaremos isso para contatá-lo. Não compartilharemos seu
+                    e-mail com ninguém.
+                  </FieldDescription>
+                </HoverCardContent>
+              </HoverCard>
+            </InputGroupAddon>
+          </InputGroup>
+        </Field>
+        <Field className="col-span-full md:col-span-1">
+          <FieldLabel htmlFor="password">Senha</FieldLabel>
+          <Input
+            id="password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <FieldDescription>Deve ter pelo menos 8 caracteres.</FieldDescription>
+        </Field>
+        <Field className="col-span-full md:col-span-1">
+          <FieldLabel htmlFor="confirm-password">Confirmar Senha</FieldLabel>
+          <Input
+            id="confirm-password"
+            type="password"
+            required
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
+          <FieldDescription>Por favor, confirme sua senha.</FieldDescription>
+        </Field>
+        <Field className="col-span-full">
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading && <Spinner className="mr-2" />}
+            {loading ? 'Criando Conta…' : 'Criar Conta'}
+          </Button>
+        </Field>
+        <FieldSeparator className="col-span-full">
+          Ou continue com
+        </FieldSeparator>
+        <Field className="col-span-full">
+          <OAuthButtons />
+        </Field>
+        <FieldDescription className="col-span-full text-center">
+          Já tem uma conta?{' '}
+          <Link
+            href="/login"
+            className="underline underline-offset-4 hover:opacity-80"
+          >
+            Entrar
+          </Link>
+        </FieldDescription>
+      </FieldGroup>
+    </form>
   );
 }

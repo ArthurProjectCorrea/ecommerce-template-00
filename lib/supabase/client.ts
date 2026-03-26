@@ -1,16 +1,15 @@
 import { createBrowserClient } from '@supabase/ssr';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config';
 
+/**
+ * Cria uma nova instância do cliente Supabase para o navegador.
+ */
 export function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY! ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  if (!url || !key) {
-    throw new Error(
-      'Missing Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)'
-    );
-  }
-
-  return createBrowserClient(url, key);
+  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
+
+/**
+ * Instância única (Singleton) do cliente Supabase para uso em Client Components.
+ * Evita a necessidade de chamar createClient() repetidamente.
+ */
+export const supabase = createClient();

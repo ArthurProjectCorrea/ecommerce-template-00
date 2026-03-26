@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { getUser } from '@/lib/supabase/server';
 import {
   Card,
   CardContent,
@@ -15,12 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { getProjectVersion } from '@/lib/version';
 
 export default async function PrivatePage() {
-  const supabase = await createClient();
+  const user = await getUser();
   const version = getProjectVersion();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');

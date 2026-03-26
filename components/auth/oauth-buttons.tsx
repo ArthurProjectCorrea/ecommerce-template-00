@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 import { Github } from 'lucide-react';
-import { translateError } from '@/lib/supabase/errors';
+import { notify } from '@/lib/notifications';
 import { Spinner } from '@/components/ui/spinner';
 
 export function OAuthButtons() {
@@ -13,7 +12,6 @@ export function OAuthButtons() {
 
   const handleOAuthLogin = async (provider: 'github') => {
     setLoadingProvider(provider);
-    const supabase = createClient();
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
@@ -23,7 +21,7 @@ export function OAuthButtons() {
     });
 
     if (error) {
-      toast.error(translateError(error.message));
+      notify.error(error.message);
       setLoadingProvider(null);
     }
   };

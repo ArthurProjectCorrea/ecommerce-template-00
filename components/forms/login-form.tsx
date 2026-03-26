@@ -3,10 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   Field,
   FieldDescription,
@@ -15,11 +13,10 @@ import {
   FieldSeparator,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import Image from 'next/image';
 
-import { toast } from 'sonner';
+import { notify } from '@/lib/notifications';
 import { Spinner } from '@/components/ui/spinner';
-import { translateError, isUnconfirmedEmailError } from '@/lib/supabase/errors';
+import { isUnconfirmedEmailError } from '@/lib/supabase/errors';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,10 +29,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { OAuthButtons } from '@/components/auth/oauth-buttons';
 
+import { cn } from '@/lib/utils';
+
 export function LoginForm({
   className,
   ...props
-}: React.ComponentProps<'div'>) {
+}: React.ComponentProps<'form'>) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,7 +46,7 @@ export function LoginForm({
     e.preventDefault();
     setLoading(true);
 
-    const supabase = createClient();
+    setLoading(true);
     const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -57,11 +56,11 @@ export function LoginForm({
       if (isUnconfirmedEmailError(authError.message)) {
         setShowUnconfirmedAlert(true);
       } else {
-        toast.error(translateError(authError.message));
+        notify.error(authError.message);
       }
       setLoading(false);
     } else {
-      toast.success('Login realizado com sucesso!');
+      notify.success('Login realizado com sucesso!');
       router.push('/private');
       router.refresh();
     }
@@ -69,7 +68,6 @@ export function LoginForm({
 
   const handleResendConfirmation = async () => {
     setResending(true);
-    const supabase = createClient();
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
@@ -79,93 +77,78 @@ export function LoginForm({
     });
 
     if (error) {
-      toast.error(translateError(error.message));
+      notify.error(error.message);
     } else {
-      toast.success('E-mail de confirmação reenviado com sucesso!');
+      notify.success('E-mail de confirmação reenviado com sucesso!');
       setShowUnconfirmedAlert(false);
     }
     setResending(false);
   };
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form
-            className="flex min-h-[480px] flex-col justify-center p-6 md:p-8"
-            onSubmit={handleSubmit}
-          >
-            <FieldGroup>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Bem-vindo de volta</h1>
-                <p className="text-muted-foreground text-balance">
-                  Faça login na sua conta da Acme Inc
-                </p>
-              </div>
-              <Field>
-                <FieldLabel htmlFor="email">E-mail</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@exemplo.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Senha</FieldLabel>
-                  <Link
-                    href="/forgot-password"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Esqueceu sua senha?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </Field>
-              <Field>
-                <Button type="submit" disabled={loading}>
-                  {loading && <Spinner className="mr-2" />}
-                  {loading ? 'Entrando…' : 'Entrar'}
-                </Button>
-              </Field>
-              <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Ou continue com
-              </FieldSeparator>
-              <Field>
-                <OAuthButtons />
-              </Field>
-              <FieldDescription className="text-center">
-                Não tem uma conta?{' '}
-                <Link href="/signup" className="underline hover:opacity-80">
-                  Cadastre-se
-                </Link>
-              </FieldDescription>
-            </FieldGroup>
-          </form>
-          <div className="bg-muted relative hidden md:block">
-            <Image
-              src="/auth.jpg"
-              alt="Imagem de fundo"
-              fill
-              className="object-cover dark:brightness-[0.2] dark:grayscale"
-            />
+    <>
+      <form
+        className={cn('mx-auto flex w-full max-w-xs flex-col gap-6', className)}
+        onSubmit={handleSubmit}
+        {...props}
+      >
+        <FieldGroup>
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h1 className="text-2xl font-bold">Entre na sua conta</h1>
+            <p className="text-muted-foreground text-sm text-balance">
+              Insira seu e-mail abaixo para entrar na sua conta
+            </p>
           </div>
-        </CardContent>
-      </Card>
-      <FieldDescription className="px-6 text-center">
-        Ao clicar em continuar, você concorda com nossos{' '}
-        <Link href="/terms">Termos de Serviço</Link> e{' '}
-        <Link href="/privacy">Política de Privacidade</Link>.
-      </FieldDescription>
+          <Field>
+            <FieldLabel htmlFor="email">E-mail</FieldLabel>
+            <Input
+              id="email"
+              type="email"
+              placeholder="m@exemplo.com"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Field>
+          <Field>
+            <div className="flex items-center">
+              <FieldLabel htmlFor="password">Senha</FieldLabel>
+              <Link
+                href="/forgot-password"
+                className="ml-auto text-sm underline-offset-4 hover:underline"
+              >
+                Esqueceu sua senha?
+              </Link>
+            </div>
+            <Input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Field>
+          <Field>
+            <Button type="submit" disabled={loading}>
+              {loading && <Spinner className="mr-2" />}
+              {loading ? 'Entrando…' : 'Entrar'}
+            </Button>
+          </Field>
+          <FieldSeparator>Ou continue com</FieldSeparator>
+          <Field>
+            <OAuthButtons />
+          </Field>
+          <FieldDescription className="text-center">
+            Não tem uma conta?{' '}
+            <Link
+              href="/signup"
+              className="underline underline-offset-4 hover:opacity-80"
+            >
+              Cadastrar-se
+            </Link>
+          </FieldDescription>
+        </FieldGroup>
+      </form>
 
       <AlertDialog
         open={showUnconfirmedAlert}
@@ -192,6 +175,6 @@ export function LoginForm({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 }

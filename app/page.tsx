@@ -1,16 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { LogIn, UserPlus, ShieldCheck } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
+import { getUser } from '@/lib/supabase/server';
 import { getProjectVersion } from '@/lib/version';
 import { Badge } from '@/components/ui/badge';
 
 export default async function Home() {
-  const supabase = await createClient();
+  const user = await getUser();
   const version = getProjectVersion();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">

@@ -2,12 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { LogOut } from 'lucide-react';
+import { notify } from '@/lib/notifications';
 import { Spinner } from '@/components/ui/spinner';
-import { translateError } from '@/lib/supabase/errors';
+import { LogOut } from 'lucide-react';
 
 export function LogoutButton() {
   const router = useRouter();
@@ -15,15 +14,14 @@ export function LogoutButton() {
 
   const handleLogout = async () => {
     setLoading(true);
-    const supabase = createClient();
 
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      toast.error(translateError(error.message));
+      notify.error(error.message);
       setLoading(false);
     } else {
-      toast.success('Logout realizado com sucesso!');
+      notify.success('Logout realizado com sucesso!');
       router.push('/login');
       router.refresh();
     }

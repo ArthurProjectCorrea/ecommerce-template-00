@@ -12,10 +12,21 @@ export async function GET(request: Request) {
     next = '/reset-password';
   }
 
+  const error = searchParams.get('error');
+  const errorCode = searchParams.get('error_code');
+  const errorDescription = searchParams.get('error_description');
+
+  if (error || errorCode || errorDescription) {
+    return NextResponse.redirect(
+      `${origin}/auth/auth-code-error?error=${encodeURIComponent(error || errorCode || '')}&error_description=${encodeURIComponent(errorDescription || '')}`
+    );
+  }
+
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
+    const { error: exchangeError } =
+      await supabase.auth.exchangeCodeForSession(code);
+    if (!exchangeError) {
       const forwardedHost = request.headers.get('x-forwarded-host'); // Beetroot host
       const isLocalEnv = process.env.NODE_ENV === 'development';
       if (isLocalEnv) {
@@ -26,9 +37,9 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}${next}`);
       }
     }
-    console.error('Auth callback error:', error.message);
+    console.error('Auth callback error:', exchangeError.message);
     return NextResponse.redirect(
-      `${origin}/auth/auth-code-error?error=${encodeURIComponent(error.message)}`
+      `${origin}/auth/auth-code-error?error=${encodeURIComponent(exchangeError.message)}`
     );
   }
 
