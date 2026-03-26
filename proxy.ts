@@ -3,20 +3,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './lib/supabase/config';
 
 export async function proxy(request: NextRequest) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    // Se as variáveis estiverem faltando, apenas continue sem o Supabase (ou trate o erro conforme necessário)
-    // Para o proxy de auth, talvez queiramos lançar um erro ou apenas passar direto.
-    // Como este proxy é usado no middleware, vamos retornar a resposta original para não quebrar o site
-    // mas logar o erro se não estivermos em build.
-    if (
-      process.env.NODE_ENV !== 'production' ||
-      process.env.NEXT_PHASE !== 'phase-production-build'
-    ) {
-      console.error('Missing Supabase environment variables in proxy');
-    }
-    return NextResponse.next({ request });
-  }
-
   let supabaseResponse = NextResponse.next({
     request,
   });
