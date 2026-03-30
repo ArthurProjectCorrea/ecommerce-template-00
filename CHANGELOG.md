@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/ArthurProjectCorrea/ecommerce-template-00/compare/v1.0.0...v1.1.0) (2026-03-30)
+
+
+### Features
+
+* implement full authentication flow with Supabase including login, signup, password recovery, and error handling pages ([0eeea6a](https://github.com/ArthurProjectCorrea/ecommerce-template-00/commit/0eeea6a092b1402513ffa2365e161d353b814b36))
+
 # 1.0.0 (2026-03-26)
 
 ### Features
