@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   let next = searchParams.get('next') ?? '/';
 
   if (type === 'recovery') {
-    next = '/reset-password';
+    next = '/auth/reset-password';
   }
 
   const error = searchParams.get('error');

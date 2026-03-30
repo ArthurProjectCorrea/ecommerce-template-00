@@ -22,7 +22,7 @@ export function LogoutButton() {
       setLoading(false);
     } else {
       notify.success('Logout realizado com sucesso!');
-      router.push('/login');
+      router.push('/auth/login');
       router.refresh();
     }
   };

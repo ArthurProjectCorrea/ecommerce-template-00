@@ -38,7 +38,7 @@ export async function proxy(request: NextRequest) {
   ) {
     if (!user) {
       // redirect to login page
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL('/auth/login', request.url));
     }
   }
 

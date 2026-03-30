@@ -19,7 +19,7 @@ export default async function PrivatePage() {
   const version = getProjectVersion();
 
   if (!user) {
-    redirect('/login');
+    redirect('/auth/login');
   }
 
   const name =

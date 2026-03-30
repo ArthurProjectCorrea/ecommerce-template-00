@@ -58,7 +58,7 @@ export default function AuthCodeError() {
           </Suspense>
           <div className="space-y-2 pt-4">
             <Button asChild className="w-full">
-              <Link href="/login">Voltar para o Login</Link>
+              <Link href="/auth/login">Voltar para o Login</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
               <Link href="/">Ir para a Home</Link>

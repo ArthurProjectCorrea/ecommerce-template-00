@@ -51,14 +51,14 @@ export default async function Home() {
             <>
               <Link
                 className="bg-foreground text-background flex h-12 w-full items-center justify-center gap-2 rounded-full px-8 transition-colors hover:bg-[#383838] md:w-auto dark:hover:bg-[#ccc]"
-                href="/login"
+                href="/auth/login"
               >
                 <LogIn className="size-4" />
                 Entrar
               </Link>
               <Link
                 className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-solid border-black/[.08] px-8 transition-colors hover:border-transparent hover:bg-black/[.04] md:w-auto dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
-                href="/signup"
+                href="/auth/signup"
               >
                 <UserPlus className="size-4" />
                 Cadastre-se

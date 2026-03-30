@@ -42,7 +42,7 @@ export function ResetPasswordForm({
       setLoading(false);
     } else {
       notify.success('Senha atualizada com sucesso!');
-      router.push('/login');
+      router.push('/auth/login');
       router.refresh();
     }
   };

@@ -6,7 +6,7 @@ export default async function ResetPasswordPage() {
   const user = await getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect('/auth/login');
   }
 
   return <ResetPasswordForm email={user?.email} />;

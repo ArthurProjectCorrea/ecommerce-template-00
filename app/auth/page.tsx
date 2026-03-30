@@ -15,5 +15,5 @@ export default async function AuthPage({
     );
   }
 
-  redirect('/login');
+  redirect('/auth/login');
 }

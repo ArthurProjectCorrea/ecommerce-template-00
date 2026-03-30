@@ -114,7 +114,7 @@ export function LoginForm({
             <div className="flex items-center">
               <FieldLabel htmlFor="password">Senha</FieldLabel>
               <Link
-                href="/forgot-password"
+                href="/auth/forgot-password"
                 className="ml-auto text-sm underline-offset-4 hover:underline"
               >
                 Esqueceu sua senha?
@@ -141,7 +141,7 @@ export function LoginForm({
           <FieldDescription className="text-center">
             Não tem uma conta?{' '}
             <Link
-              href="/signup"
+              href="/auth/signup"
               className="underline underline-offset-4 hover:opacity-80"
             >
               Cadastrar-se

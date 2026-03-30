@@ -84,7 +84,7 @@ export function ForgotPasswordForm({
 
         <FieldDescription className="text-center">
           <Link
-            href="/login"
+            href="/auth/login"
             className="flex items-center justify-center underline underline-offset-4 hover:opacity-80"
           >
             <ChevronLeft className="mr-1 size-4" />

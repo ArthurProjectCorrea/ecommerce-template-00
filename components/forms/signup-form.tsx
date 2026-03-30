@@ -71,7 +71,7 @@ export function SignupForm({
         notify.success(
           'Cadastro realizado. Verifique seu e-mail para confirmar a conta.'
         );
-        router.push('/login');
+        router.push('/auth/login');
       }
     } catch {
       notify.error('Ocorreu um erro inesperado. Tente novamente.');
@@ -167,7 +167,7 @@ export function SignupForm({
         <FieldDescription className="col-span-full text-center">
           Já tem uma conta?{' '}
           <Link
-            href="/login"
+            href="/auth/login"
             className="underline underline-offset-4 hover:opacity-80"
           >
             Entrar
