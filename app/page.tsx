@@ -42,7 +42,7 @@ export default async function Home() {
           {user ? (
             <Link
               className="bg-foreground text-background flex h-12 w-full items-center justify-center gap-2 rounded-full px-8 transition-colors hover:bg-[#383838] md:w-auto dark:hover:bg-[#ccc]"
-              href="/private"
+              href="/admin"
             >
               <ShieldCheck className="size-4" />
               Acessar Área Privada

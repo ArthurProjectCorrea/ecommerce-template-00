@@ -1,4 +1,4 @@
-import { LoginForm } from '@/components/forms/login-form';
+import { LoginForm } from '@/components/form/login-form';
 import { unauthorized } from 'next/navigation';
 
 export default async function LoginPage({

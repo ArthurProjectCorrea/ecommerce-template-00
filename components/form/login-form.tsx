@@ -14,9 +14,8 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 
-import { notify } from '@/lib/notifications';
+import { notify, isUnconfirmedEmailError } from '@/lib/notifications';
 import { Spinner } from '@/components/ui/spinner';
-import { isUnconfirmedEmailError } from '@/lib/supabase/errors';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { OAuthButtons } from '@/components/auth/oauth-buttons';
+import { OAuthButtons } from '@/components/button/oauth-buttons';
 
 import { cn } from '@/lib/utils';
 
@@ -46,7 +45,6 @@ export function LoginForm({
     e.preventDefault();
     setLoading(true);
 
-    setLoading(true);
     const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -61,7 +59,7 @@ export function LoginForm({
       setLoading(false);
     } else {
       notify.success('Login realizado com sucesso!');
-      router.push('/private');
+      router.push('/admin');
       router.refresh();
     }
   };

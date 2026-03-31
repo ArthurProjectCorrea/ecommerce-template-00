@@ -56,7 +56,7 @@ O sistema de autenticação foi construído utilizando `@supabase/ssr` para gara
 - **Cadastro (Signup)**: Criação de conta com confirmação por e-mail e tratamento de e-mails não confirmados.
 - **Login**: Autenticação robusta com e-mail/senha e suporte a **OAuth (GitHub)**.
 - **Recuperação de Senha**: Fluxo completo de "Esqueci minha senha" com envio de e-mail e redefinição segura.
-- **Área Privada**: Rota protegida `/private` que exibe dados do perfil e gerencia a sessão.
+- **Área Privada**: Rota protegida `/admin` que exibe dados do perfil e gerencia a sessão.
 - **Legal Pages**: Páginas de Termos de Serviço e Privacidade integradas via MDX.
 - **UX Aprimorada**: Toasts de notificação (Sonner), estados de carregamento (Spinners) e validação em tempo real.
 

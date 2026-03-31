@@ -33,7 +33,6 @@ export async function createClient() {
 
 /**
  * Atalho para obter o usuário atual em Server Components.
- * Reduz a necessidade de chamar createClient() e getUser() separadamente.
  */
 export async function getUser() {
   const supabase = await createClient();
@@ -41,4 +40,35 @@ export async function getUser() {
     data: { user },
   } = await supabase.auth.getUser();
   return user;
+}
+
+/**
+ * Atalho para obter o perfil do usuário atual.
+ * Tenta ler do cache (cookies) primeiro para evitar consultas ao banco.
+ */
+export async function getProfile() {
+  const cookieStore = await cookies();
+  const cachedProfile = cookieStore.get('app-user-profile')?.value;
+
+  if (cachedProfile) {
+    try {
+      return JSON.parse(cachedProfile);
+    } catch {
+      // Ignorar erro de parse e buscar no banco
+    }
+  }
+
+  const user = await getUser();
+  if (!user) return null;
+
+  const supabase = await createClient();
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  // Nota: cookies().set não funciona em Server Components comuns,
+  // por isso dependemos do proxy.ts para popular esse cache inicialmente.
+  return profile;
 }

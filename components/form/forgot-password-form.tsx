@@ -11,9 +11,8 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
 import { Spinner } from '@/components/ui/spinner';
-import { translateError } from '@/lib/supabase/errors';
+import { notify } from '@/lib/notifications';
 import { ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -34,10 +33,10 @@ export function ForgotPasswordForm({
     });
 
     if (error) {
-      toast.error(translateError(error.message));
+      notify.error(error);
       setLoading(false);
     } else {
-      toast.success('E-mail de recuperação enviado!');
+      notify.success('E-mail de recuperação enviado!');
       setSent(true);
       setLoading(false);
     }

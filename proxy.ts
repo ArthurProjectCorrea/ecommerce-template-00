@@ -31,15 +31,75 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // if hitting /private, block unauthenticated users before rendering
-  if (
-    request.nextUrl.pathname === '/private' ||
-    request.nextUrl.pathname.startsWith('/private/')
-  ) {
-    if (!user) {
-      // redirect to login page
-      return NextResponse.redirect(new URL('/auth/login', request.url));
+  // Se o usuário estiver autenticado, verificar o perfil (com cache em cookies)
+  if (user) {
+    const cachedProfileValue = request.cookies.get('app-user-profile')?.value;
+    let profile = null;
+
+    if (cachedProfileValue) {
+      try {
+        profile = JSON.parse(cachedProfileValue);
+      } catch {
+        // Ignorar erro de parse e buscar no banco
+      }
     }
+
+    // Se não estiver no cache, buscar no banco
+    if (!profile) {
+      const { data: dbProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      profile = dbProfile;
+
+      if (profile) {
+        // Salva o perfil no cookie da resposta para que as próximas requisições (incluindo Server Components) vejam
+        supabaseResponse.cookies.set(
+          'app-user-profile',
+          JSON.stringify(profile),
+          {
+            maxAge: 60 * 60 * 24, // 1 dia
+            path: '/',
+          }
+        );
+      }
+    }
+
+    // Se o perfil não existir nem no cache nem no banco, forçar logout
+    if (!profile) {
+      const response = NextResponse.redirect(
+        new URL('/auth/login', request.url)
+      );
+      // Limpa os cookies relacionados ao Supabase e o cache do perfil
+      request.cookies.getAll().forEach((cookie) => {
+        if (
+          cookie.name.includes('supabase-auth') ||
+          cookie.name.startsWith('sb-') ||
+          cookie.name === 'app-user-profile'
+        ) {
+          response.cookies.delete(cookie.name);
+        }
+      });
+      return response;
+    }
+
+    // Se estiver acessando /admin e for um cliente, redirecionar para a home (/) imediato
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+      if (profile.is_client) {
+        const response = NextResponse.redirect(new URL('/', request.url));
+        // Passar o cookie de perfil adiante no redirecionamento para evitar recarga
+        response.cookies.set('app-user-profile', JSON.stringify(profile), {
+          maxAge: 60 * 60 * 24,
+          path: '/',
+        });
+        return response;
+      }
+    }
+  } else if (request.nextUrl.pathname.startsWith('/admin')) {
+    // Bloquear usuários não autenticados na rota /admin
+    return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
   return supabaseResponse;

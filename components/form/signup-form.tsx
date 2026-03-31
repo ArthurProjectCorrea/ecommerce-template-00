@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { notify } from '@/lib/notifications';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
-import { OAuthButtons } from '@/components/auth/oauth-buttons';
+import { OAuthButtons } from '@/components/button/oauth-buttons';
 import { InfoIcon } from 'lucide-react';
 import {
   HoverCard,
