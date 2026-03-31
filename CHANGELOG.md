@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/ArthurProjectCorrea/ecommerce-template-00/compare/v1.1.0...v1.2.0) (2026-03-31)
+
+
+### Features
+
+* implement full admin dashboard with product/category management, authentication flows, and Supabase database integration ([5b7d7a2](https://github.com/ArthurProjectCorrea/ecommerce-template-00/commit/5b7d7a2b21f2299a498b332dfc566823ecff9039))
+
 # [1.1.0](https://github.com/ArthurProjectCorrea/ecommerce-template-00/compare/v1.0.0...v1.1.0) (2026-03-30)
 
 ### Features
